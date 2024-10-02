@@ -7,4 +7,5 @@ export const config = {
     serverPort: process.env.PORT || 8080,
     jwtSecret: process.env.JWT_SECRET,
     mapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+    floraKey: process.env.FLORA_KEY,
 }

@@ -8,6 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.getElementById('category-select');
     const colorSelect = document.getElementById('color-select');
     const applyFiltersButton = document.getElementById('apply-filters');
+
+    const modal = document.getElementById('flowerInfoModal');
+    const closeModal = document.getElementsByClassName('close')[0];
+
+    closeModal.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
     
     window.addEventListener('resize', handleResize(resize, 400));
 
@@ -19,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const user = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
-
 
     function calculateProductsPerRow() {
         let screenWidth = window.innerWidth;
@@ -69,22 +81,62 @@ document.addEventListener('DOMContentLoaded', function() {
     function createProductElement(product) {
         const productItem = document.createElement('div');
         productItem.className = 'product-item';
+        
         const imageContainer = document.createElement('div');
         imageContainer.className = 'image-container';
-
-        imageContainer.innerHTML = `
-            <img src="${product.imageUrl}" alt="${product.name}">`;
-
+    
+        const img = document.createElement('img');
+        img.src = product.imageUrl;
+        img.alt = product.name;
+        
+        imageContainer.appendChild(img);
+        
+        imageContainer.addEventListener('click', function() {
+            openDataModal(product.name);
+        });
+    
         productItem.appendChild(imageContainer);
         
-        productItem.innerHTML += `
-            <p>${product.name}</p>
-            <p class="price">${product.price.toFixed(2)} ₪</p>
-            <button class="add-to-cart" data-id="${product._id}">Add to Cart</button>
-        `;
-
-
+        const nameElement = document.createElement('p');
+        nameElement.textContent = product.name;
+        
+        const priceElement = document.createElement('p');
+        priceElement.className = 'price';
+        priceElement.textContent = `${product.price.toFixed(2)} ₪`;
+        
+        const addToCartButton = document.createElement('button');
+        addToCartButton.className = 'add-to-cart';
+        addToCartButton.textContent = 'Add to Cart';
+        addToCartButton.dataset.id = product._id;
+    
+        productItem.appendChild(nameElement);
+        productItem.appendChild(priceElement);
+        productItem.appendChild(addToCartButton);
+    
         return productItem;
+    }
+
+    function openDataModal(flowerName) {
+        $.ajax({
+            url: `/api/flowers/get-info?name=${encodeURIComponent(flowerName.replace(' ','+'))}`,
+            method: 'GET',
+            success: function(data) {
+                if (data.commonName) {
+                    document.getElementById('modalFlowerName').textContent = data.commonName;
+                    document.getElementById('modalScientificName').textContent = `Scientific Name: ${data.scientificName}`;
+                    document.getElementById('modalFamily').textContent = `Family: ${data.family}`;
+                    document.getElementById('modalGenus').textContent = `Genus: ${data.genus}`;
+
+                    modal.style.display = "block";
+                } else {
+                    alert('No information found for this flower.');
+                }
+            },
+            error: function(error) {
+                console.error('Error fetching flower information:', error);
+                alert('Error fetching flower information. Please try again later.');
+            }
+        });
     }
 
     async function loadProducts(reset = false) {
