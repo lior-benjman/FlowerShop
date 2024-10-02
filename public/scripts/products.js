@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const modal = document.getElementById('flowerInfoModal');
     const closeModal = document.getElementsByClassName('close')[0];
-
     closeModal.onclick = function() {
         modal.style.display = "none";
     }
@@ -126,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('modalScientificName').textContent = `Scientific Name: ${data.scientificName}`;
                     document.getElementById('modalFamily').textContent = `Family: ${data.family}`;
                     document.getElementById('modalGenus').textContent = `Genus: ${data.genus}`;
-
+                    openDataModal2(data.genus_id);
                     modal.style.display = "block";
                 } else {
                     alert('No information found for this flower.');
@@ -137,6 +136,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Error fetching flower information. Please try again later.');
             }
         });
+        /*console.log(genus_id);
+        if(genus_id){
+            $.ajax({
+                url: `/api/flowers/get-specie-info?name=${encodeURIComponent(genus_id)}`,
+                method: 'GET',
+                success: function(data) {
+                    if (data.commonName) {
+                        document.getElementById('modalFlowerName').textContent = data.commonName;
+                        document.getElementById('modalScientificName').textContent = `Scientific Name: ${data.scientificName}`;
+                        document.getElementById('modalFamily').textContent = `Family: ${data.family}`;
+                        document.getElementById('modalGenus').textContent = `Genus: ${data.genus}`;
+                        openDataModal2(data.genus_id)
+                        modal.style.display = "block";
+                    } else {
+                        alert('No information found for this flower.');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error fetching flower information:', error);
+                    alert('Error fetching flower information. Please try again later.');
+                }
+            });
+        }*/
+    }
+
+    function openDataModal2(genus_id) {
+        console.log(genus_id);
+        if(genus_id){
+            $.ajax({
+                url: `/api/flowers/get-specie-info?name=${encodeURIComponent(genus_id)}`,
+                method: 'GET',
+                success: function(data) {
+                    if (data.commonName) {
+                        document.getElementById('modalFlowerName').textContent = data.commonName;
+                        document.getElementById('modalScientificName').textContent = `Scientific Name: ${data.scientificName}`;
+                        document.getElementById('modalFamily').textContent = `Family: ${data.family}`;
+                        document.getElementById('modalGenus').textContent = `Genus: ${data.genus}`;
+
+                        modal.style.display = "block";
+                    } else {
+                        alert('No information found for this flower.');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error fetching flower information:', error);
+                    alert('Error fetching flower information. Please try again later.');
+                }
+            });
+        }
     }
 
     async function loadProducts(reset = false) {

@@ -8,7 +8,7 @@ const flowerRouter = express.Router();
 
 
 flowerRouter.get('/get-info', flowerController.getInfo);
-
+flowerRouter.get('/get-specie-info', flowerController.getSpecieInfo);
 
 flowerRouter.get('/filter-options', flowerController.getFilterOptions);
 

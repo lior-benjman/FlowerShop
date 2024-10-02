@@ -195,7 +195,7 @@ export const flowerController = {
     const options = {
       'method': 'GET',
       'hostname': 'api.floracodex.com',
-      'path': `/v1/plants/search/?token=${floraKey}&q=${flowerName}`,
+      'path': `/v1/species/search/?token=${floraKey}&q=${flowerName}`,
       'headers': {
       },
       'maxRedirects': 20
@@ -215,6 +215,68 @@ export const flowerController = {
           const jsonData = outputData.data;
           if (jsonData && jsonData.length > 0) {
             const plantDetails = jsonData[0];
+            console.log(plantDetails);
+            if (plantDetails) {
+              res.json({
+                commonName: plantDetails.common_name || 'Not available',
+                scientificName: plantDetails.scientific_name || 'Not available',
+                family: plantDetails.family || 'Not available',
+                genus: plantDetails.genus || 'Not available',
+                genus_id: plantDetails.genus_id
+              });
+            } else {
+              res.json({ message: 'No plants found' });
+            }
+          } else {
+            res.json({ message: 'No plants found' });
+          }
+        } catch (error) {
+          console.error('Error parsing API response:', error);
+          res.status(500).json({ error: 'Failed to parse plant information' });
+        }
+      });
+    });
+
+    apiReq.on('error', function (error) {
+      console.error('Error fetching from Garden API:', error);
+      res.status(500).json({ error: 'Failed to fetch plant information' });
+    });
+
+    apiReq.end();
+  },
+
+
+
+  getSpecieInfo: async (req, res) => {
+    
+    const genus_id = req.query.name;
+    
+    const options = {
+      'method': 'GET',
+      'hostname': 'api.floracodex.com',
+      'path': `/v1/species/${genus_id}/?token=${floraKey}`,
+      'headers': {
+      },
+      'maxRedirects': 20
+    };
+
+    const apiReq = https.request(options, function (apiRes) {
+      const chunks = [];
+
+      apiRes.on('data', function (chunk) {
+        chunks.push(chunk);
+      });
+
+      apiRes.on('end', function () {
+        const body = Buffer.concat(chunks);
+        try {
+          const outputData = JSON.parse(body.toString());
+          console.log(outputData);
+          const jsonData = outputData.data;
+          console.log(jsonData);
+          if (jsonData && jsonData.length > 0) {
+            const plantDetails = jsonData[0];
+            console.log(plantDetails);
             if (plantDetails) {
               res.json({
                 commonName: plantDetails.common_name || 'Not available',
@@ -241,7 +303,6 @@ export const flowerController = {
     });
 
     apiReq.end();
-  },
-
+  }
 
 };
